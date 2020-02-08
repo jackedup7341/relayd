@@ -30,15 +30,7 @@
 #include "uloop.h"
 #include "utils.h"
 
-#ifdef USE_KQUEUE
-#include <sys/event.h>
-#endif
-
-#define USE_EPOLL
-
-#ifdef USE_EPOLL
 #include <sys/epoll.h>
-#endif
 #include <sys/wait.h>
 
 struct uloop_fd_event {
