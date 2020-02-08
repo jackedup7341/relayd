@@ -63,13 +63,7 @@ static int uloop_run_depth = 0;
 
 int uloop_fd_add(struct uloop_fd *sock, unsigned int flags);
 
-#ifdef USE_KQUEUE
-#include "uloop-kqueue.c"
-#endif
-
-#ifdef USE_EPOLL
 #include "uloop-epoll.c"
-#endif
 
 static void waker_consume(struct uloop_fd *fd, unsigned int events)
 {
