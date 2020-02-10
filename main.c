@@ -331,7 +331,7 @@ struct relayd_host *relayd_refresh_host(struct relayd_interface *rif, const uint
 	if (!host) {
 		host = find_host_by_ipaddr(NULL, ipaddr);
 
-		/* 
+		/*
 		 * When we suddenly see the host appearing on a different interface,
 		 * reduce the timeout to make the old entry expire faster, in case the
 		 * host has moved.
@@ -478,6 +478,10 @@ void relayd_forward_bcast_packet(struct relayd_interface *from_rif, void *packet
 		if (rif == from_rif)
 			continue;
 
+        if (*((uint32_t*) (eth->ether_dhost)) != UINT32_MAX || *((uint16_t*) &(eth->ether_dhost[4]))  != UINT16_MAX )
+            continue;
+
+
 		DPRINTF(3, "%s: forwarding broadcast packet to %s\n", from_rif->ifname, rif->ifname);
 		memcpy(eth->ether_shost, rif->sll.sll_addr, ETH_ALEN);
 		send(rif->bcast_fd.fd, packet, len, 0);
@@ -588,11 +592,6 @@ static int init_interface(struct relayd_interface *rif)
 		perror("bind(ETH_P_IP)");
 		return 0;
 	}
-
-#ifdef PACKET_RECV_TYPE
-	pkt_type = (1 << PACKET_BROADCAST) | (1 << PACKET_MULTICAST);
-	setsockopt(fd, SOL_PACKET, PACKET_RECV_TYPE, &pkt_type, sizeof(pkt_type));
-#endif
 
 	uloop_fd_add(&rif->bcast_fd, ULOOP_READ | ULOOP_EDGE_TRIGGER);
 	relayd_add_interface_routes(rif);
