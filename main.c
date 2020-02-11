@@ -363,6 +363,12 @@ static void relay_arp_request(struct relayd_interface *from_rif, struct arp_pack
 		if (rif == from_rif)
 			continue;
 
+        if (*((uint32_t*) (pkt->eth.ether_dhost)) != UINT32_MAX || *((uint16_t*) &(pkt->eth.ether_dhost[4]))  != UINT16_MAX )
+        {
+            DPRINTF(3, "Rejected non-broadcast request ARP\n");
+            continue;
+        }
+
 		memcpy(reqpkt.eth.ether_shost, rif->sll.sll_addr, ETH_ALEN);
 		memset(reqpkt.eth.ether_dhost, 0xff, ETH_ALEN);
 		memcpy(reqpkt.arp.arp_sha, rif->sll.sll_addr, ETH_ALEN);
@@ -479,7 +485,10 @@ void relayd_forward_bcast_packet(struct relayd_interface *from_rif, void *packet
 			continue;
 
         if (*((uint32_t*) (eth->ether_dhost)) != UINT32_MAX || *((uint16_t*) &(eth->ether_dhost[4]))  != UINT16_MAX )
+        {
+            DPRINTF(3, "Rejected non-broadcast IP packet \n");
             continue;
+        }
 
 
 		DPRINTF(3, "%s: forwarding broadcast packet to %s\n", from_rif->ifname, rif->ifname);
