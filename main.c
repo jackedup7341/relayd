@@ -536,9 +536,6 @@ static int init_interface(struct relayd_interface *rif)
 	struct sockaddr_in *sin;
 	struct ifreq ifr;
 	int fd = rif->fd.fd;
-#ifdef PACKET_RECV_TYPE
-	unsigned int pkt_type;
-#endif
 
 	fd = socket(AF_PACKET, SOCK_RAW, htons(ETH_P_ARP));
 	if (fd < 0)
