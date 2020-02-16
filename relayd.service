@@ -6,7 +6,7 @@ After=network-online.target
 
 [Service]
 Type=simple
-ExecStart=/usr/local/bin/relayd -d -B -D -I wlan0 -I br0
+ExecStart=/usr/local/bin/relayd -B -D -I wlan0 -I eth0
 
 [Install]
 WantedBy=multi-user.target
