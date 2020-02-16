@@ -477,13 +477,14 @@ void relayd_forward_bcast_packet(struct relayd_interface *from_rif, void *packet
 	list_for_each_entry(rif, &interfaces, list) {
 		if (rif == from_rif)
 			continue;
+#ifndef PACKET_RECV_TYPE
 
         if (*((uint32_t*) (eth->ether_dhost)) != UINT32_MAX || *((uint16_t*) &(eth->ether_dhost[4]))  != UINT16_MAX )
         {
             DPRINTF(3, "Rejected non-broadcast IP packet \n");
             continue;
         }
-
+#endif // PACKET_RECV_TYPE
 
 		DPRINTF(3, "%s: forwarding broadcast packet to %s\n", from_rif->ifname, rif->ifname);
 		memcpy(eth->ether_shost, rif->sll.sll_addr, ETH_ALEN);
@@ -595,6 +596,11 @@ static int init_interface(struct relayd_interface *rif)
 		perror("bind(ETH_P_IP)");
 		return 0;
 	}
+
+#ifdef PACKET_RECV_TYPE
+    pkt_type = (1 << PACKET_BROADCAST) | (1 << PACKET_MULTICAST);
+    setsockopt(fd, SOL_PACKET, PACKET_RECV_TYPE, &pkt_type, sizeof(pkt_type));
+#endif
 
 	uloop_fd_add(&rif->bcast_fd, ULOOP_READ | ULOOP_EDGE_TRIGGER);
 	relayd_add_interface_routes(rif);
